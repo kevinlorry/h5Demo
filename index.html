@@ -2,12 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <title>YOUNG DRIVERS</title>
 </head>
 <body>
-    <div class="content">
+    <div id="tb" class="content">
         <img src="./bg.png"  alt="">
     </div>
+    <script type="text/javascript" src="https://manage.yd.com/YD/dialog/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="https://manage.yd.com/YD/dialog/clipboard.min.js"></script>
+    <script>
+        var clip = null;
+        function getUrlParam(name)
+        {
+            let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            let r = window.location.search.substr(1).match(reg);
+            if (r != null) return decodeURI(r[2]);
+            return null;
+        }
+        jQuery(document).ready(function()
+        {
+            if(getUrlParam("id") != null)
+            {
+                jQuery.ajax(
+                    {
+                        type: 'POST',
+                        url: 'https://api.yd.com/YD/review/clickReviewURL?id=' + getUrlParam("id"),
+                        dataType: 'json',
+                        success: function (json)
+                        {
+                            if(navigator.userAgent.indexOf("iPhone") > -1 || navigator.userAgent.indexOf("Mac OS") > -1)
+                            {
+                                document.getElementById('tb').addEventListener('click', () =>
+                                {
+                                    const textCopied = ClipboardJS.copy(json['Review']);
+                                    console.log('copied!', textCopied);
+                                    window.location = json['ReviewURL'];
+                                });
+                            }
+                            else
+                            {
+                                navigator.clipboard.writeText(json['Review']);
+                                document.getElementById('tb').addEventListener('click', () =>
+                                {
+                                    window.location = json['ReviewURL'];
+                                });
+                            }
+                        }
+                    });
+            }
+        });
+    </script>
 </body>
 <style>
     body{
